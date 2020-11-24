@@ -1,57 +1,205 @@
-<!DOCTYPE html>
-<html lang="en">
+var quizBody = document.getElementById("quiz");
+var resultsEl = document.getElementById("result");
+var finalScoreEl = document.getElementById("finalScore");
+var gameoverDiv = document.getElementById("gameover");
+var questionsEl = document.getElementById("questions");
+var quizTimer = document.getElementById("timer");
+var startQuizButton = document.getElementById("startbtn");
+var startQuizDiv = document.getElementById("startpage");
+var highscoreContainer = document.getElementById("highscoreContainer");
+var highscoreDiv = document.getElementById("high-scorePage");
+var highscoreInputName = document.getElementById("initials");
+var highscoreDisplayName = document.getElementById("highscore-initials");
+var endGameBtns = document.getElementById("endGameBtns");
+var submitScoreBtn = document.getElementById("submitScore");
+var highscoreDisplayScore = document.getElementById("highscore-score");
+var buttonA = document.getElementById("A");
+var buttonB = document.getElementById("B");
+var buttonC = document.getElementById("C");
+var buttonD = document.getElementById("D");
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
-    <title>Code Quiz</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
 
-<body>
+var quizQuestions = [{
+    question: "How many elements can you apply an 'ID' attribute to?",
+    choiceA: "As many as you want",
+    choiceB: "3",
+    choiceC: "1",
+    choiceD: "128",
+    correctAnswer: "C"},
+  {
+    question: "What does DOM stand for?",
+    choiceA: "Document Object Model",
+    choiceB: "Display Object Management",
+    choiceC: "Digital Ordinance Model",
+    choiceD: "Desktop Oriented Mode",
+    correctAnswer: "A"},
+   {
+    question: "What is used primarily to add styling to a web page?",
+    choiceA: "HTML",
+    choiceB: "CSS",
+    choiceC: "Python",
+    choiceD: "React.js",
+    correctAnswer: "B"},
+    {
+    question: "What HTML tags are JavaScript code wrapped in?",
+    choiceA: "&lt;div&gt;",
+    choiceB: "&lt;link&gt;",
+    choiceC: "&lt;head&gt;",
+    choiceD: "&lt;script&gt;",
+    correctAnswer: "D"},
+    {
+    question: "When is localStorage data cleared?",
+    choiceA: "No expiration time",
+    choiceB: "On page reload",
+    choiceC: "On browser close",
+    choiceD: "On computer restart",
+    correctAnswer: "A"},  
+    {
+    question: "What does WWW stand for?",
+    choiceA: "Web World Workings",
+    choiceB: "Weak Winter Wind",
+    choiceC: "World Wide Web",
+    choiceD: "Wendy Wants Waffles",
+    correctAnswer: "C"},
+    {
+    question: "What HTML attribute references an external JavaScript file?",
+    choiceA: "href",
+    choiceB: "src",
+    choiceC: "class",
+    choiceD: "index",
+    correctAnswer: "B"},
+        
+    
+    ];
 
-    <div class="container">
-        <div id="startpage">
-            <h2>CODE QUIZ</h2>
-            <button id="startbtn">Start Code Quiz</button>
-            <button id="startPageHighscore" onclick="showHighscore()">High Scores</button>
-        </div>
+var finalQuestionIndex = quizQuestions.length;
+var currentQuestionIndex = 0;
+var timeLeft = 76;
+var timerInterval;
+var score = 0;
+var correct;
 
-        <div id="quiz">
-            <div id="timer">Time left: </div>
-            <div id="questions">
-            </div>
-            <button id="a" onclick="checkAnswer('A')">A</button>
-            <button id="b" onclick="checkAnswer('B')">B</button>
-            <button id="c" onclick="checkAnswer('C')">C</button>
-            <button id="d" onclick="checkAnswer('D')">D</button>
-            <div id="result"></div>
-        </div>
-        <div id="gameover">
+function generateQuizQuestion(){
+    gameoverDiv.style.display = "none";
+    if (currentQuestionIndex === finalQuestionIndex){
+        return showScore();
+    } 
+    var currentQuestion = quizQuestions[currentQuestionIndex];
+    questionsEl.innerHTML = "<p>" + currentQuestion.question + "</p>";
+    buttonA.innerHTML = currentQuestion.choiceA;
+    buttonB.innerHTML = currentQuestion.choiceB;
+    buttonC.innerHTML = currentQuestion.choiceC;
+    buttonD.innerHTML = currentQuestion.choiceD;
+};
 
-            <div id="finalScore"></div>
-            <input type="text" size="50" placeholder="Enter you initials for high score" name="intials" id="initials" />
-            <button id="submitScore">Submit Score</button>
-        </div>
-        <div id=highscoreContainer>
-            <div id="high-scorePage">
-                <div id="highscore-header">
-                    <h3>User Initials</h3>
-                    <h3>Score</h3>
-                </div>
+function startQuiz(){
+    gameoverDiv.style.display = "none";
+    startQuizDiv.style.display = "none";
+    generateQuizQuestion();
 
-                <div id="highscore-initials"></div>
-                <div id="highscore-score"></div>
-            </div>
-            <div id="endGameButtons">
-                <button id="playAgain" onclick="replayQuiz()">Play Again</button>
-                <button id="clearHighscore" onclick="clearScore()">Clear Highscores</button>
-            </div>
-        </div>
-</body>
-<script src="script.js"></script>
+    timerInterval = setInterval(function() {
+        timeLeft--;
+        quizTimer.textContent = "Time left: " + timeLeft;
+    
+        if(timeLeft === 0) {
+          clearInterval(timerInterval);
+          showScore();
+        }
+      }, 1000);
+    quizBody.style.display = "block";
+}
 
-</html>
+function showScore(){
+    quizBody.style.display = "none"
+    gameoverDiv.style.display = "flex";
+    clearInterval(timerInterval);
+    highscoreInputName.value = "";
+    finalScoreEl.innerHTML = "You got " + score + " out of " + quizQuestions.length + " correct!";
+}
+
+submitScoreBtn.addEventListener("click", function highscore(){
+    
+    
+    if(highscoreInputName.value === "") {
+        alert("Initials cannot be blank");
+        return false;
+    }else{
+        var savedHighscores = JSON.parse(localStorage.getItem("savedHighscores")) || [];
+        var currentUser = highscoreInputName.value.trim();
+        var currentHighscore = {
+            name : currentUser,
+            score : score
+        };
+    
+        gameoverDiv.style.display = "none";
+        highscoreContainer.style.display = "flex";
+        highscoreDiv.style.display = "block";
+        endGameBtns.style.display = "flex";
+        
+        savedHighscores.push(currentHighscore);
+        localStorage.setItem("savedHighscores", JSON.stringify(savedHighscores));
+        generateHighscores();
+
+    }
+    
+});
+
+function generateHighscores(){
+    highscoreDisplayName.innerHTML = "";
+    highscoreDisplayScore.innerHTML = "";
+    var highscores = JSON.parse(localStorage.getItem("savedHighscores")) || [];
+    for (i=0; i<highscores.length; i++){
+        var newNameSpan = document.createElement("li");
+        var newScoreSpan = document.createElement("li");
+        newNameSpan.textContent = highscores[i].name;
+        newScoreSpan.textContent = highscores[i].score;
+        highscoreDisplayName.appendChild(newNameSpan);
+        highscoreDisplayScore.appendChild(newScoreSpan);
+    }
+}
+
+function showHighscore(){
+    startQuizDiv.style.display = "none"
+    gameoverDiv.style.display = "none";
+    highscoreContainer.style.display = "flex";
+    highscoreDiv.style.display = "block";
+    endGameBtns.style.display = "flex";
+
+    generateHighscores();
+}
+
+function clearScore(){
+    window.localStorage.clear();
+    highscoreDisplayName.textContent = "";
+    highscoreDisplayScore.textContent = "";
+}
+
+function replayQuiz(){
+    highscoreContainer.style.display = "none";
+    gameoverDiv.style.display = "none";
+    startQuizDiv.style.display = "flex";
+    timeLeft = 76;
+    score = 0;
+    currentQuestionIndex = 0;
+}
+
+function checkAnswer(answer){
+    correct = quizQuestions[currentQuestionIndex].correctAnswer;
+
+    if (answer === correct && currentQuestionIndex !== finalQuestionIndex){
+        score++;
+        alert("That Is Correct!");
+        currentQuestionIndex++;
+        generateQuizQuestion();
+        
+    }else if (answer !== correct && currentQuestionIndex !== finalQuestionIndex){
+        alert("That Is Incorrect.")
+        currentQuestionIndex++;
+        generateQuizQuestion();
+
+    }else{
+        showScore();
+    }
+}
+
+startQuizButton.addEventListener("click",startQuiz);
